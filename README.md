@@ -31,8 +31,8 @@ Have R installed, along with the following packages:
 - Annotation reference CSVs: D1.csv, D2.csv, D3.csv, D4.csv; each containing at least:
   - symbol (gene symbol)
   - cell_name (cell type)
-  Additional metadata (optional but recommended for extended annotation):
-  - tissue_type, cancer_type and tissue_class
+  - Additional metadata (optional but recommended for extended annotation):
+    - tissue_type, cancer_type and tissue_class
 
 
  ## Usage

@@ -16,13 +16,13 @@ The script performs the following major steps:
 
 ## Prerequisites
 Have R installed, along with the following packages:
-library(Seurat)
-library(SeuratData)
-library(ggplot2)
-library(patchwork)
-library(dplyr)
-library(presto)
-library(devtools)
+- library(Seurat)
+- library(SeuratData)
+- library(ggplot2)
+- library(patchwork)
+- library(dplyr)
+- library(presto)
+- library(devtools)
 
 
 ## Usage

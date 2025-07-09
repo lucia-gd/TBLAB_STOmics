@@ -190,7 +190,7 @@ visium_data$cell_type <- sapply(visium_data$seurat_clusters, function(x) {
 
 #################################################################################################3
 
-# 9. OBTAINING INTERMEDIATE FILES
+# 10. OBTAINING INTERMEDIATE FILES
 
 # Filtering: top x important genes per cluster:
 top_per_cluster <- markers %>%
@@ -305,7 +305,7 @@ table_nspots_cell_type <- merge(spot_counts, cell_type_assignment, by = "cluster
 
 ################################################################################################
 
-# 10. OUTPUT FOLDER TO SAVE RESULTS
+# 11. OUTPUT FOLDER TO SAVE RESULTS
 output_base <- "/home/luciagd/twoblab/luciagd/seurat_analysis/results_integrated"
 output_dir <- file.path(output_base, sample)
 
@@ -314,7 +314,7 @@ if (!dir.exists(output_dir)) {
 }
 
 
-# 11. SAVING PLOTS
+# 12. SAVING PLOTS
 
 # Clustering plots with no annotation
 p1 <- DimPlot(visium_data, reduction = "umap", label = TRUE, label.box=TRUE)
@@ -352,7 +352,7 @@ ggsave(filename = file.path(output_dir, "combined_plot.png"), plot = combined_pl
 anotated_plots <- umap_plot_annotated + spatial_plot_annotated
 ggsave(filename = file.path(output_dir, "anotated_plots.png"), plot = combined_plot, width = 12, height = 6, dpi = 300) 
 
-# 12.SAVING TABLES
+# 13.SAVING TABLES
 write.csv(top_per_cluster, file = file.path(output_dir, "top_markers_with_celltype.csv"), row.names = FALSE)
 write.csv(cell_type_assignment, file = file.path(output_dir, "cell_type_assignment.csv"), row.names = FALSE)
 write.csv(cell_type_assignment_extended, file = file.path(output_dir, "cell_type_assignment_extended.csv"), row.names = FALSE)

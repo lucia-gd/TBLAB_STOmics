@@ -190,7 +190,7 @@ visium_data$cell_type <- sapply(visium_data$seurat_clusters, function(x) {
 
 #################################################################################################3
 
-# 10. OBTAINING INTERMEDIATE FILES
+# 10. OBTAINING ADDITIONAL METADATA
 
 # Filtering: top x important genes per cluster:
 top_per_cluster <- markers %>%

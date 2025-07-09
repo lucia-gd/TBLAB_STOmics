@@ -14,7 +14,8 @@ The script performs the following major steps:
 7. Output: save results including plots, top markers, and cell type assignments.
 
 
-## Prerequisites
+## Get started
+### Prerequisites
 Have R installed, along with the following packages:
 - library(Seurat)
 - library(SeuratData)
@@ -25,4 +26,26 @@ Have R installed, along with the following packages:
 - library(devtools)
 
 
-## Usage
+### Required Data
+- 10x spatial transcriptomics data
+- Annotation reference CSVs: D1.csv, D2.csv, D3.csv, D4.csv; each containing at least:
+  - symbol (gene symbol)
+  - cell_name (cell type)
+  Additional metadata (optional but recommended for extended annotation):
+  - tissue_type, cancer_type and tissue_class
+
+
+ ## Usage
+ Rscript seurat_integrated_all.R <sample> <data_dir> <n.markers> <max.dimensions> <clustering.resolution>
+
+ ## Example:
+ Rscript seurat_integrated_all.R A694Tumor /path/to/outs 10 10 0.5
+
+ ## Script arguments:
+
+
+ ## Citation
+ 
+
+
+    

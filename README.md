@@ -9,7 +9,7 @@ The script performs the following major steps:
 2. Preprocessing: normalize, scale, and reduce dimensionality of data
 3. Clustering: identify clusters.
 4. Marker discovery: detect differentially expressed genes per cluster.
-5. Annotation: assign cell types using reference datasets with increasing specificity (D1 - D4).
+5. Annotation: assign cell types using reference datasets with decreasing specificity (D1 - D4).
 6. Visualization: generate annotated UMAP and spatial plots.
 7. Output: save results including plots, top markers, and cell type assignments.
 

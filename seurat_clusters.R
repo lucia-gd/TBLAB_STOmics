@@ -3,10 +3,10 @@
 # Lucía García Delgado
 
 # Analysis, visualization, and integration of spatial datasets with Seurat
-# Anotación usando los 4 niveles de especificidad: D1 (cancer), D2, D3, D4 (all)
+# Annotation using the 4 levels of specificity: D1 (cancer), D2, D3, D4 (all)
 
 
-# 1. INSTALAR LIBRERÍAS
+# 1. INSTALL LIBRARIES
 library(Seurat)
 library(SeuratData)
 library(ggplot2)
@@ -16,17 +16,17 @@ library(presto)
 library(devtools)
 
 
-# 2. ARGUMENTOS
+# 2. ARGUMENTS
 args = commandArgs(trailingOnly=TRUE)
 
-# Inicializamos las variables con valores predeterminados
+# Initialize the variables with default values
 sample <- ""
 data_dir <- ""
 n.markers <- 30
 max.dimensions <- 20
 clustering.resolution <- 0.5
 
-# Comprobamos si se pasaron los 5 argumentos
+# Check arguments
 if(length(args) == 5){
   sample <- args[1]
   data_dir <- args[2]        
@@ -35,7 +35,7 @@ if(length(args) == 5){
   clustering.resolution <- as.numeric(args[5])  
 } 
 
-# Imprimir los valores de las variables
+# Print variable values
 print(paste("Sample: ", sample))
 print(paste("Data path: ", data_dir))
 print(paste("Number of Markers: ", n.markers))
@@ -46,7 +46,7 @@ list.files(data_dir) # Should show filtered_feature_bc_matrix.h5
 data.dir = data_dir
 
 
-# 3. CARGA DE DATOS DE LA MUESTRA
+# 3. SAMPLE DATA LOADING
 visium_data <- Load10X_Spatial(
   data.dir,
   filename = "filtered_feature_bc_matrix.h5",
@@ -56,30 +56,30 @@ visium_data <- Load10X_Spatial(
   filter.matrix = TRUE)
 head(visium_data@meta.data)
 
-# 4. PREPROCESAMIENTO
-# Normalizar los datos
+# 4. PREPROCESSING
+# Normalize the data
 visium_data <- NormalizeData(visium_data)
 
-# Buscar las características variables (genes)
+# Find variable features (genes)
 visium_data <- FindVariableFeatures(visium_data)
 
-# Escalar los datos
+# Scale the data
 visium_data <- ScaleData(visium_data)
 
-# Realizar PCA
+# Perform PCA
 visium_data <- RunPCA(visium_data, features = VariableFeatures(visium_data))
 
-# Realizar UMAP
+# Perform UMAP
 visium_data <- RunUMAP(visium_data, dims = 1:max.dimensions)
 
 # Clustering 
 visium_data <- FindNeighbors(visium_data, dims = 1:max.dimensions)
 visium_data <- FindClusters(visium_data, resolution = clustering.resolution)
 
-# Calcular % varianza explicada:
+# Calculate % variance
 pca_var <- visium_data[["pca"]]@stdev^2
 pca_var_percent <- pca_var / sum(pca_var) * 100
-pca_var_percent  # Este vector te da el % de varianza por cada dimensión
+pca_var_percent 
 
 varianza_tabla <- data.frame(
   PCs = c("PC1-10", "PC1-20", "PC1-30"),
@@ -92,7 +92,7 @@ varianza_tabla <- data.frame(
 
 
 ##############################################################################
-# 5. MARCADORES DIFERENCIALES
+# 5. DIFFERENTIAL MARKERS
 markers <- FindAllMarkers(visium_data)
 markers$gene <- toupper(markers$gene)
 
@@ -102,7 +102,7 @@ cluster_markers <- markers %>%
   top_n(n.markers, avg_log2FC)
 
 
-# 6. FUNCION PARA ASIGNAR TIPOS CELULARES
+# 6. FUNCTION FOR CELL TYPE ASSIGNMENT
 assign_cell_type <- function(cluster_markers, dataset, dataset_name) {
   merged <- merge(cluster_markers, dataset, by = "gene")
   assigned_cell_types <- merged %>%
@@ -113,7 +113,8 @@ assign_cell_type <- function(cluster_markers, dataset, dataset_name) {
 }
 
 
-# 7. CARGA DE DATASETS DE REFERENCIA ORDENADOS POR NIVELES DE ESPECIFICIDAD
+# 7. LOADING REFERENCE DATASETS ORDERED BY LEVELS OF SPECIFICITY
+
 D1 <- read.csv("/home/luciagd/twoblab/luciagd/seurat_analysis/D1.csv")
 D2 <- read.csv("/home/luciagd/twoblab/luciagd/seurat_analysis/D2.csv")
 D3 <- read.csv("/home/luciagd/twoblab/luciagd/seurat_analysis/D3.csv")
@@ -134,7 +135,7 @@ dataset_D3 <- cell_type_dataset(D3)
 dataset_D4 <- cell_type_dataset(D4)
 
 
-# 8. ASIGNACION INICIAL: inicialización del data.frame "cell_type_assignment"
+# 8. INITIAL ASSIGNMENT: initialization of the "cell_type_assignment" data.frame
 todos_clusters <- unique(cluster_markers$cluster)
 
 cell_type_assignment <- data.frame(
@@ -144,13 +145,13 @@ cell_type_assignment <- data.frame(
   stringsAsFactors = FALSE
 )
 
-# 9. ANOTACIÓN POR ORDEN DE ESPECIFICIDAD
-# Asignación con D1
+# 9. ANNOTATION BY SPECIFICITY ORDER
+# Assignment using D1
 res_D1 <- assign_cell_type(cluster_markers, dataset_D1, "D1") #anota: 0,2,4,5,6
 cell_type_assignment$assigned_cell_type[match(res_D1$cluster, cell_type_assignment$cluster)] <- res_D1$assigned_cell_type
 cell_type_assignment$dataset[match(res_D1$cluster, cell_type_assignment$cluster)] <- res_D1$dataset
 
-# Asignación con D2
+# Assignment using D2
 faltan <- cell_type_assignment$cluster[cell_type_assignment$assigned_cell_type == "Unknown"]
 if (length(faltan) > 0) {
   res_D2 <- assign_cell_type(cluster_markers %>% filter(cluster %in% faltan), dataset_D2, "D2")
@@ -158,7 +159,7 @@ if (length(faltan) > 0) {
   cell_type_assignment$dataset[match(res_D2$cluster, cell_type_assignment$cluster)] <- res_D2$dataset
 }
 
-# Asignación con D3
+# Assignment using D3
 faltan <- cell_type_assignment$cluster[cell_type_assignment$assigned_cell_type == "Unknown"]
 if (length(faltan) > 0) {
   res_D3 <- assign_cell_type(cluster_markers %>% filter(cluster %in% faltan), dataset_D3, "D3")
@@ -166,7 +167,7 @@ if (length(faltan) > 0) {
   cell_type_assignment$dataset[match(res_D3$cluster, cell_type_assignment$cluster)] <- res_D3$dataset
 }
 
-# Asignación con D4
+# Assignment using D4
 faltan <- cell_type_assignment$cluster[cell_type_assignment$assigned_cell_type == "Unknown"]
 if (length(faltan) > 0) {
   res_D4 <- assign_cell_type(cluster_markers %>% filter(cluster %in% faltan), dataset_D4, "D4")
@@ -174,7 +175,7 @@ if (length(faltan) > 0) {
   cell_type_assignment$dataset[match(res_D4$cluster, cell_type_assignment$cluster)] <- res_D4$dataset
 }
 
-# ASIGNACIÓN DE LOS TIPOS CELULARES AL OBJETO SEURAT
+# ASSIGNING CELL TYPES TO THE SEURAT OBJECT
 cell_type_vector <- setNames(cell_type_assignment$assigned_cell_type, cell_type_assignment$cluster)
 
 visium_data$cell_type <- sapply(visium_data$seurat_clusters, function(x) {
@@ -189,9 +190,9 @@ visium_data$cell_type <- sapply(visium_data$seurat_clusters, function(x) {
 
 #################################################################################################3
 
-# 9. OBTENCIÓN DE ARCHIVOS INTERMEDIOS
+# 9. OBTAINING INTERMEDIATE FILES
 
-# Filtrado: x genes más importantes por cluster:
+# Filtering: top x important genes per cluster:
 top_per_cluster <- markers %>%
   filter(p_val_adj < 0.05) %>%
   group_by(cluster) %>%
@@ -201,7 +202,7 @@ top_per_cluster <- markers %>%
 top_per_cluster <- top_per_cluster %>%
   left_join(cell_type_assignment, by = "cluster")
 
-# Tabla con el tipo celular de cada cluster + su tissue_type, cancer_type y tissue_class
+# Table with the cell type of each cluster + its tissue_type, cancer_type, and tissue_class
 cell_type_markers_extended <- function(D) {
   data.frame(
     gene = toupper(D$Symbol),
@@ -219,7 +220,7 @@ dataset_D2_ext <- cell_type_markers_extended(D2)
 dataset_D3_ext <- cell_type_markers_extended(D3)
 dataset_D4_ext <- cell_type_markers_extended(D4) 
 
-# FUnción de asignación
+# Assignment function
 assign_cell_type_extended <- function(cluster_markers, dataset_ext, dataset_name) {
   merged <- merge(cluster_markers, dataset_ext, by = "gene")
   if (nrow(merged) == 0) {
@@ -239,7 +240,7 @@ assign_cell_type_extended <- function(cluster_markers, dataset_ext, dataset_name
   return(assigned_info)
 }
 
-# Inicialización del data.frame extendido
+# Initialitation of the extended data.frame
 cell_type_assignment_extended <- data.frame(
   cluster = sort(unique(cluster_markers$cluster)),
   assigned_cell_type = "Unknown",
@@ -251,7 +252,7 @@ cell_type_assignment_extended <- data.frame(
 )
 
 
-# Asignar con D1
+# Assignment using D1
 res_D1 <- assign_cell_type_extended(cluster_markers, dataset_D1_ext, "D1")
 cell_type_assignment_extended$assigned_cell_type[match(res_D1$cluster, cell_type_assignment_extended$cluster)] <- res_D1$assigned_cell_type
 cell_type_assignment_extended$assigned_tissue_type[match(res_D1$cluster, cell_type_assignment_extended$cluster)] <- res_D1$assigned_tissue_type
@@ -259,7 +260,7 @@ cell_type_assignment_extended$assigned_cancer_type[match(res_D1$cluster, cell_ty
 cell_type_assignment_extended$assigned_tissue_class[match(res_D1$cluster, cell_type_assignment_extended$cluster)] <- res_D1$assigned_tissue_class
 cell_type_assignment_extended$dataset[match(res_D1$cluster, cell_type_assignment_extended$cluster)] <- res_D1$dataset
 
-# Asignar con D2
+# Assignment using D2
 faltan <- cell_type_assignment_extended$cluster[cell_type_assignment_extended$assigned_cell_type == "Unknown"]
 if (length(faltan) > 0) {
   res_D2 <- assign_cell_type_extended(cluster_markers %>% filter(cluster %in% faltan), dataset_D2_ext, "D2")
@@ -270,7 +271,7 @@ if (length(faltan) > 0) {
   cell_type_assignment_extended$dataset[match(res_D2$cluster, cell_type_assignment_extended$cluster)] <- res_D2$dataset
 }
 
-# Asignar con D3
+# Assignment using D3
 faltan <- cell_type_assignment_extended$cluster[cell_type_assignment_extended$assigned_cell_type == "Unknown"]
 if (length(faltan) > 0) {
   res_D3 <- assign_cell_type_extended(cluster_markers %>% filter(cluster %in% faltan), dataset_D3_ext, "D3")
@@ -281,7 +282,7 @@ if (length(faltan) > 0) {
   cell_type_assignment_extended$dataset[match(res_D3$cluster, cell_type_assignment_extended$cluster)] <- res_D3$dataset
 }
 
-# Asignar con D4
+# Assignment using D4
 faltan <- cell_type_assignment_extended$cluster[cell_type_assignment_extended$assigned_cell_type == "Unknown"]
 if (length(faltan) > 0) {
   res_D4 <- assign_cell_type_extended(cluster_markers %>% filter(cluster %in% faltan), dataset_D4_ext, "D4")
@@ -293,18 +294,18 @@ if (length(faltan) > 0) {
 }
 
 
-# Cuantificación del número de spots por cluster:
-# data.frame con número de spots por cluster
+# Quantification of the number of spots per cluster:
+# data.frame with the number of spots per cluster
 spot_counts <- as.data.frame(table(visium_data$seurat_clusters))
 colnames(spot_counts) <- c("cluster", "n_spots")
 
-# Añadimos la columna con el tipo celular asignado: cluster, n_spots, assigned_cell_type
+# Add the column with the assigned cell type: cluster, n_spots, assigned_cell_type
 table_nspots_cell_type <- merge(spot_counts, cell_type_assignment, by = "cluster")
 
 
 ################################################################################################
 
-# 10. CARPETA DE SALIDA PARA GUARDAR LOS RESULTADOS
+# 10. OUTPUT FOLDER TO SAVE RESULTS
 output_base <- "/home/luciagd/twoblab/luciagd/seurat_analysis/results_integrated"
 output_dir <- file.path(output_base, sample)
 
@@ -313,9 +314,9 @@ if (!dir.exists(output_dir)) {
 }
 
 
-# 11. GUARDADO DE GRÁFICAS
+# 11. SAVING PLOTS
 
-# CLustering plots with no annotation
+# Clustering plots with no annotation
 p1 <- DimPlot(visium_data, reduction = "umap", label = TRUE, label.box=TRUE)
 p2 <- SpatialDimPlot(visium_data, label = TRUE, label.size = 4, pt.size.factor = 5.5) + labs(fill = "") +
   theme(legend.text = element_text(size = 12)) +
@@ -351,7 +352,7 @@ ggsave(filename = file.path(output_dir, "combined_plot.png"), plot = combined_pl
 anotated_plots <- umap_plot_annotated + spatial_plot_annotated
 ggsave(filename = file.path(output_dir, "anotated_plots.png"), plot = combined_plot, width = 12, height = 6, dpi = 300) 
 
-# 12. GUARDADO DE TABLAS
+# 12.SAVING TABLES
 write.csv(top_per_cluster, file = file.path(output_dir, "top_markers_with_celltype.csv"), row.names = FALSE)
 write.csv(cell_type_assignment, file = file.path(output_dir, "cell_type_assignment.csv"), row.names = FALSE)
 write.csv(cell_type_assignment_extended, file = file.path(output_dir, "cell_type_assignment_extended.csv"), row.names = FALSE)
@@ -361,8 +362,7 @@ write.csv(pca_var_percent, file = file.path(output_dir, "pca_var_percent.csv"), 
 write.csv(varianza_tabla,file = file.path("varianza_explicada.csv"), row.names = FALSE)
 
 
-
-# Ejecución desde la terminal:
+# Execution from the terminal:
 # Rscript seurat_integrated_all.R sample data_dir n.markers max.dimensions clustering.resolution
 # Rscript seurat_integrated_all.R A694Tumor '/home/luciagd/twoblab/luciagd/LUCIA_SpatialTranscriptomics/results/A694Tumor/outs' 10 10 0.5
 

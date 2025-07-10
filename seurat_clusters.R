@@ -364,6 +364,5 @@ write.csv(varianza_tabla,file = file.path("varianza_explicada.csv"), row.names =
 
 # Execution from the terminal:
 # Rscript seurat_integrated_all.R sample data_dir n.markers max.dimensions clustering.resolution
-# Rscript seurat_integrated_all.R A694Tumor '/home/luciagd/twoblab/luciagd/LUCIA_SpatialTranscriptomics/results/A694Tumor/outs' 10 10 0.5
 
 

@@ -3,7 +3,7 @@
 ## Introduction
 TBLAB_STOmics is a bioinformatics R script for the analysis, visualization and annotation of spatial transcriptomics data using Seurat. It allows its visualization, clustering and annotation of clusters to cell types using a mannually curated dataset.
 
-![General workflow](general_workflow.jpeg)
+![General workflow](workflow.jpeg)
 
 
 #### Annotation strategy

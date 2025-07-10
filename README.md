@@ -5,6 +5,7 @@ TBLAB_STOmics is a bioinformatics R script for the analysis, visualization and a
 
 ![General workflow](general_workflow.jpeg)
 
+
 #### Annotation strategy
 The annotations are perfomed in hierarchical order,, with datasets ordered in accumulative order with decreasing specificity: D1 (most specific) > D2 > D3 > D4 (most general). Only unannotated clusters at each stage are passed to the next dataset.
 

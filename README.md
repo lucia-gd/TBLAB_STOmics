@@ -45,11 +45,11 @@ Rscript seurat_integrated_all.R <sample_name> <data_dir> <n.markers> <max.dimens
 Rscript seurat_integrated_all.R sampleX /path/to/outs 10 10 0.5
 
 ## Script arguments:
-sample --> Name of the sample (used for file output naming)
-data_dir --> path to folder containing "filtered_feature_bc_matrix.h5"
-n.markers --> number of top markers to consider per cluster
-max.dimensions --> number of PCA dimensions to use for UMAP and clustering
-clustering.resolutions --> clustering resolution for FindClusters() in Seurat
+- sample \u2192 Name of the sample (used for file output naming)
+- data_dir --> path to folder containing "filtered_feature_bc_matrix.h5"
+- n.markers --> number of top markers to consider per cluster
+- max.dimensions --> number of PCA dimensions to use for UMAP and clustering
+- clustering.resolutions --> clustering resolution for FindClusters() in Seurat
 
 ## Output includes:
 - UMAP and spatial plots unannotated

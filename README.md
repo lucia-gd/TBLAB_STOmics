@@ -44,10 +44,10 @@ Have R installed, along with the following packages:
 
 
 ## Usage
-Rscript seurat_integrated_all.R <sample_name> <data_dir> <n.markers> <max.dimensions> <clustering.resolution>
+Rscript seurat_clusters.R <sample_name> <data_dir> <n.markers> <max.dimensions> <clustering.resolution>
 
 ### Example:
-Rscript seurat_integrated_all.R sampleX /path/to/outs 10 10 0.5
+Rscript seurat_clusters.R sample /path/to/outs 10 10 0.5
 
 ## Script arguments:
 - sample --> name of the sample (used for file output naming)
